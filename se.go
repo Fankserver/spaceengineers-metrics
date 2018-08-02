@@ -12,6 +12,8 @@ import (
 
 	"strings"
 
+	"sync/atomic"
+
 	"github.com/pkg/errors"
 )
 
@@ -20,6 +22,7 @@ type SpaceEngineers struct {
 	host   string
 	key    []byte
 	random *rand.Rand
+	nonce  uint64
 }
 
 func New(host string, key string) (*SpaceEngineers, error) {
@@ -171,7 +174,7 @@ func (s *SpaceEngineers) ServerInfo() (*ServerInfo, error) {
 
 	res, err := s.client.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "nonce %d", atomic.LoadUint64(&s.nonce))
 	}
 
 	defer res.Body.Close()
@@ -201,7 +204,8 @@ func (s *SpaceEngineers) createRequest(resourceLink string, method string, query
 
 	req.Header.Add("Date", t)
 
-	randomNumber := s.random.Uint32()
+	randomNumber := atomic.AddUint64(&s.nonce, 1)
+	//randomNumber := s.random.Uint32()
 	message := req.URL.Path + "\r\n"
 	message += fmt.Sprint(randomNumber) + "\r\n"
 	message += t + "\r\n"
