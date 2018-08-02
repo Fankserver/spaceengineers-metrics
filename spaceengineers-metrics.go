@@ -99,10 +99,10 @@ func main() {
 					"display_name":       grid.DisplayName,
 					"entity_id":          fmt.Sprint(grid.EntityId),
 					"is_powered":         fmt.Sprint(powered),
+					"grid_size":          grid.GridSize,
 				},
 				map[string]interface{}{
 					"blocks_count": grid.BlocksCount,
-					"grid_size":    grid.GridSize,
 					"is_powered":   powered,
 					"linear_speed": grid.LinearSpeed,
 					"mass":         grid.Mass,
