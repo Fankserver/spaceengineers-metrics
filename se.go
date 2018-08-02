@@ -152,7 +152,7 @@ func (s *SpaceEngineers) SessionGrids() ([]SessionGrid, error) {
 type ServerInfo struct {
 	Game              string
 	IsReady           bool
-	Players           uint8
+	Players           int8
 	ServerID          int64 `json:"ServerId"`
 	ServerName        string
 	SimSpeed          float64
