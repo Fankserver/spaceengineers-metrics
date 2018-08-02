@@ -38,9 +38,14 @@ func main() {
 	}
 	defer c.Close()
 
+	running := false
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
 	for range ticker.C {
+		if running {
+			continue
+		}
+		running = true
 		info, err := s.ServerInfo()
 		if err != nil {
 			log.Fatal(err)
@@ -119,5 +124,6 @@ func main() {
 		if err := c.Write(bp); err != nil {
 			log.Fatal(err)
 		}
+		running = false
 	}
 }
