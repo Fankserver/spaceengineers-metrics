@@ -46,6 +46,11 @@ func main() {
 			log.Fatal(err)
 		}
 
+		grids, err := s.SessionGrids()
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		// Create a new point batch
 		bp, err := client.NewBatchPoints(client.BatchPointsConfig{
 			Database:  "test",
@@ -79,6 +84,36 @@ func main() {
 			log.Fatal(err)
 		}
 		bp.AddPoint(pt)
+
+		for _, grid := range grids {
+			powered := 0
+			if grid.IsPowered {
+				powered++
+			}
+			pt, err := client.NewPoint(
+				"spaceengineers_grids",
+				map[string]string{
+					"host":               *host,
+					"owner_steam_id":     fmt.Sprint(grid.OwnerSteamID),
+					"owner_display_name": grid.OwnerDisplayName,
+					"display_name":       grid.DisplayName,
+					"entity_id":          fmt.Sprint(grid.EntityId),
+					"is_powered":         fmt.Sprint(powered),
+				},
+				map[string]interface{}{
+					"blocks_count": grid.BlocksCount,
+					"grid_size":    grid.GridSize,
+					"is_powered":   powered,
+					"linear_speed": grid.LinearSpeed,
+					"mass":         grid.Mass,
+					"pcu":          grid.PCU,
+				},
+			)
+			if err != nil {
+				log.Fatal(err)
+			}
+			bp.AddPoint(pt)
+		}
 
 		// Write the batch
 		if err := c.Write(bp); err != nil {

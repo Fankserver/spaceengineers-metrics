@@ -36,9 +36,119 @@ func New(host string, key string) (*SpaceEngineers, error) {
 	}, nil
 }
 
-type ServerInfoResponse struct {
-	Data ServerInfo `json:"data"`
+type SessionAsteroid struct {
+	DisplayName *string
+	EntityId    int64
+	Position    struct {
+		X float64
+		Y float64
+		Z float64
+	}
 }
+
+func (s *SpaceEngineers) SessionAsteroids() ([]SessionAsteroid, error) {
+	req, err := s.createRequest("/v1/session/asteroids", http.MethodGet, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := s.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.New(res.Status)
+	}
+	var responseData struct {
+		Data struct {
+			Asteroids []SessionAsteroid
+		} `json:"data"`
+	}
+	err = json.NewDecoder(res.Body).Decode(&responseData)
+	if err != nil {
+		return nil, err
+	}
+
+	return responseData.Data.Asteroids, nil
+}
+
+type SessionGrid struct {
+	DisplayName string
+	EntityId    int64
+	GridSize    string
+	BlocksCount int
+	Mass        float64
+	Position    struct {
+		X float64
+		Y float64
+		Z float64
+	}
+	LinearSpeed      float64
+	DistanceToPlayer float64
+	OwnerSteamID     int64 `json:"OwnerSteamId"`
+	OwnerDisplayName string
+	IsPowered        bool
+	PCU              int
+}
+
+func (s *SpaceEngineers) SessionGrids() ([]SessionGrid, error) {
+	req, err := s.createRequest("/v1/session/grids", http.MethodGet, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := s.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.New(res.Status)
+	}
+	var responseData struct {
+		Data struct {
+			Grids []SessionGrid
+		} `json:"data"`
+	}
+	err = json.NewDecoder(res.Body).Decode(&responseData)
+	if err != nil {
+		return nil, err
+	}
+
+	return responseData.Data.Grids, nil
+}
+
+//func (s *SpaceEngineers) SessionFloatingObjects() (*string, error) {
+//	req, err := s.createRequest("/v1/session/floatingObjects", http.MethodGet, nil)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	res, err := s.client.Do(req)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	defer res.Body.Close()
+//	if res.StatusCode != http.StatusOK {
+//		return nil, errors.New(res.Status)
+//	}
+//	//var responseData struct {
+//	//	Data SessionAsteroids `json:"data"`
+//	//}
+//	b, _ := ioutil.ReadAll(res.Body)
+//	log.Fatal(string(b))
+//	//err = json.NewDecoder(res.Body).Decode(&responseData)
+//	//if err != nil {
+//	//	return nil, err
+//	//}
+//
+//	return nil, nil
+//}
+
 type ServerInfo struct {
 	Game              string
 	IsReady           bool
@@ -68,7 +178,9 @@ func (s *SpaceEngineers) ServerInfo() (*ServerInfo, error) {
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.New(res.Status)
 	}
-	var responseData ServerInfoResponse
+	var responseData struct {
+		Data ServerInfo `json:"data"`
+	}
 	err = json.NewDecoder(res.Body).Decode(&responseData)
 	if err != nil {
 		return nil, err
