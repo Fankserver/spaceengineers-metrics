@@ -14,15 +14,18 @@ import (
 
 	"sync/atomic"
 
+	"sync"
+
 	"github.com/pkg/errors"
 )
 
 type SpaceEngineers struct {
-	client *http.Client
-	host   string
-	key    []byte
-	random *rand.Rand
-	nonce  uint64
+	client     *http.Client
+	clientLock sync.Mutex
+	host       string
+	key        []byte
+	random     *rand.Rand
+	nonce      uint64
 }
 
 func New(host string, key string) (*SpaceEngineers, error) {
@@ -55,6 +58,8 @@ func (s *SpaceEngineers) SessionAsteroids() ([]SessionAsteroid, error) {
 		return nil, err
 	}
 
+	s.clientLock.Lock()
+	defer s.clientLock.Unlock()
 	res, err := s.client.Do(req)
 	if err != nil {
 		return nil, err
@@ -102,6 +107,8 @@ func (s *SpaceEngineers) SessionGrids() ([]SessionGrid, error) {
 		return nil, err
 	}
 
+	s.clientLock.Lock()
+	defer s.clientLock.Unlock()
 	res, err := s.client.Do(req)
 	if err != nil {
 		return nil, err
@@ -172,6 +179,8 @@ func (s *SpaceEngineers) ServerInfo() (*ServerInfo, error) {
 		return nil, err
 	}
 
+	s.clientLock.Lock()
+	defer s.clientLock.Unlock()
 	res, err := s.client.Do(req)
 	if err != nil {
 		return nil, errors.Wrapf(err, "nonce %d", atomic.LoadUint64(&s.nonce))
