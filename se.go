@@ -213,8 +213,8 @@ func (s *SpaceEngineers) createRequest(resourceLink string, method string, query
 
 	req.Header.Add("Date", t)
 
-	randomNumber := atomic.AddUint64(&s.nonce, 1)
-	//randomNumber := s.random.Uint32()
+	//randomNumber := atomic.AddUint64(&s.nonce, 1)
+	randomNumber := s.random.Uint32()
 	message := req.URL.Path + "\r\n"
 	message += fmt.Sprint(randomNumber) + "\r\n"
 	message += t + "\r\n"
