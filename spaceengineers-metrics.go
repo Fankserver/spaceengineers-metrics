@@ -104,74 +104,74 @@ func main() {
 
 		return nil
 	})
-	errWg.Go(func() error {
-		running := false
-		ticker := time.NewTicker(60 * time.Second)
-		defer ticker.Stop()
-		for {
-			select {
-			case <-gCtx.Done():
-				return gCtx.Err()
-			case <-ticker.C:
-				if running {
-					continue
-				}
-				running = true
-
-				grids, err := s.SessionGrids()
-				if err != nil {
-					return err
-				}
-
-				// Create a new point batch
-				bp, err := client.NewBatchPoints(client.BatchPointsConfig{
-					Database:  "test",
-					Precision: "s",
-				})
-				if err != nil {
-					return err
-				}
-
-				for _, grid := range grids {
-					powered := 0
-					if grid.IsPowered {
-						powered++
-					}
-					pt, err := client.NewPoint(
-						"spaceengineers_grids",
-						map[string]string{
-							"host":               *host,
-							"owner_steam_id":     fmt.Sprint(grid.OwnerSteamID),
-							"owner_display_name": grid.OwnerDisplayName,
-							"display_name":       grid.DisplayName,
-							"entity_id":          fmt.Sprint(grid.EntityId),
-							"is_powered":         fmt.Sprint(powered),
-							"grid_size":          grid.GridSize,
-						},
-						map[string]interface{}{
-							"blocks_count": grid.BlocksCount,
-							"is_powered":   powered,
-							"linear_speed": grid.LinearSpeed,
-							"mass":         grid.Mass,
-							"pcu":          grid.PCU,
-						},
-					)
-					if err != nil {
-						return err
-					}
-					bp.AddPoint(pt)
-				}
-
-				// Write the batch
-				if err := c.Write(bp); err != nil {
-					return err
-				}
-				running = false
-			}
-		}
-
-		return nil
-	})
+	//errWg.Go(func() error {
+	//	running := false
+	//	ticker := time.NewTicker(60 * time.Second)
+	//	defer ticker.Stop()
+	//	for {
+	//		select {
+	//		case <-gCtx.Done():
+	//			return gCtx.Err()
+	//		case <-ticker.C:
+	//			if running {
+	//				continue
+	//			}
+	//			running = true
+	//
+	//			grids, err := s.SessionGrids()
+	//			if err != nil {
+	//				return err
+	//			}
+	//
+	//			// Create a new point batch
+	//			bp, err := client.NewBatchPoints(client.BatchPointsConfig{
+	//				Database:  "test",
+	//				Precision: "s",
+	//			})
+	//			if err != nil {
+	//				return err
+	//			}
+	//
+	//			for _, grid := range grids {
+	//				powered := 0
+	//				if grid.IsPowered {
+	//					powered++
+	//				}
+	//				pt, err := client.NewPoint(
+	//					"spaceengineers_grids",
+	//					map[string]string{
+	//						"host":               *host,
+	//						"owner_steam_id":     fmt.Sprint(grid.OwnerSteamID),
+	//						"owner_display_name": grid.OwnerDisplayName,
+	//						"display_name":       grid.DisplayName,
+	//						"entity_id":          fmt.Sprint(grid.EntityId),
+	//						"is_powered":         fmt.Sprint(powered),
+	//						"grid_size":          grid.GridSize,
+	//					},
+	//					map[string]interface{}{
+	//						"blocks_count": grid.BlocksCount,
+	//						"is_powered":   powered,
+	//						"linear_speed": grid.LinearSpeed,
+	//						"mass":         grid.Mass,
+	//						"pcu":          grid.PCU,
+	//					},
+	//				)
+	//				if err != nil {
+	//					return err
+	//				}
+	//				bp.AddPoint(pt)
+	//			}
+	//
+	//			// Write the batch
+	//			if err := c.Write(bp); err != nil {
+	//				return err
+	//			}
+	//			running = false
+	//		}
+	//	}
+	//
+	//	return nil
+	//})
 
 	err = errWg.Wait()
 	if err != nil {
