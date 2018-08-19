@@ -19,7 +19,7 @@ var (
 	key        = flag.String("key", "", "rcon key")
 	influxhost = flag.String("influxhost", "http://localhost:8086", "influxdb host")
 	influxuser = flag.String("influxuser", "", "influx username")
-	influxpass = flag.String("ifnluxpass", "", "influx password")
+	influxpass = flag.String("influxpass", "", "influx password")
 )
 
 func main() {
