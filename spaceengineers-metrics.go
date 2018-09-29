@@ -18,6 +18,7 @@ var (
 	host       = flag.String("host", "http://localhost:8080", "host url of the rcon server")
 	key        = flag.String("key", "", "rcon key")
 	influxhost = flag.String("influxhost", "http://localhost:8086", "influxdb host")
+	influxdb   = flag.String("influxdb", "spaceengineers", "influxdb database")
 	influxuser = flag.String("influxuser", "", "influx username")
 	influxpass = flag.String("influxpass", "", "influx password")
 )
@@ -62,7 +63,7 @@ func main() {
 
 				// Create a new point batch
 				bp, err := client.NewBatchPoints(client.BatchPointsConfig{
-					Database:  "test",
+					Database:  *influxdb,
 					Precision: "s",
 				})
 				if err != nil {
@@ -106,7 +107,7 @@ func main() {
 	})
 	errWg.Go(func() error {
 		running := false
-		ticker := time.NewTicker(60 * time.Second)
+		ticker := time.NewTicker(10 * time.Second)
 		defer ticker.Stop()
 		for {
 			select {
@@ -125,7 +126,7 @@ func main() {
 
 				// Create a new point batch
 				bp, err := client.NewBatchPoints(client.BatchPointsConfig{
-					Database:  "test",
+					Database:  *influxdb,
 					Precision: "s",
 				})
 				if err != nil {
