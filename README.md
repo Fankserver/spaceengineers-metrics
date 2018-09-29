@@ -4,10 +4,12 @@
 Usage of spaceengineers-metrics:
   -host string
     	host url of the rcon server (default "http://localhost:8080")
-  -influxpass string
-    	influx password
+  -influxdb string
+    	influxdb database (default "spaceengineers")
   -influxhost string
     	influxdb host (default "http://localhost:8086")
+  -influxpass string
+    	influx password
   -influxuser string
     	influx username
   -key string
