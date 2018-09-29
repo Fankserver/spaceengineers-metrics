@@ -21,9 +21,7 @@ type SpaceEngineers struct {
 	clientLock sync.Mutex
 	host       string
 	key        []byte
-	//random     *rand.Rand
-	//nonce      uint64
-	unique *UniqueRand
+	unique     *UniqueRand
 }
 
 func New(host string, key string) (*SpaceEngineers, error) {
@@ -46,7 +44,6 @@ func New(host string, key string) (*SpaceEngineers, error) {
 		client: &http.Client{},
 		host:   host,
 		key:    decodedKey,
-		//random: rand.New(rand.NewSource(time.Now().UnixNano())),
 		unique: unique,
 	}, nil
 }
@@ -192,7 +189,6 @@ func (s *SpaceEngineers) ServerInfo() (*ServerInfo, error) {
 	defer s.clientLock.Unlock()
 	res, err := s.client.Do(req)
 	if err != nil {
-		//return nil, errors.Wrapf(err, "nonce %d", atomic.LoadUint64(&s.nonce))
 		return nil, err
 	}
 
@@ -223,7 +219,6 @@ func (s *SpaceEngineers) createRequest(resourceLink string, method string, query
 
 	req.Header.Add("Date", t)
 
-	//randomNumber := atomic.AddUint64(&s.nonce, 1)
 	randomNumber := s.unique.UInt64()
 	message := req.URL.Path + "\r\n"
 	message += fmt.Sprint(randomNumber) + "\r\n"

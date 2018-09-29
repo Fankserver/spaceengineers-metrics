@@ -82,7 +82,7 @@ func main() {
 				if info.IsReady {
 					ready++
 				}
-				pt, err := client.NewPoint("spaceengineers", tags, map[string]interface{}{
+				pt, err := client.NewPoint("server", tags, map[string]interface{}{
 					"sim_speed":    info.SimSpeed,
 					"players":      info.Players,
 					"sim_cpu_load": info.SimulationCpuLoad,
@@ -139,7 +139,7 @@ func main() {
 						powered++
 					}
 					pt, err := client.NewPoint(
-						"spaceengineers_grids",
+						"grid",
 						map[string]string{
 							"host":               *host,
 							"owner_steam_id":     fmt.Sprint(grid.OwnerSteamID),
