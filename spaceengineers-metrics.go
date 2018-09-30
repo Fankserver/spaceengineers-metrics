@@ -73,15 +73,16 @@ func main() {
 				tags := map[string]string{
 					"host":        *host,
 					"server_name": info.ServerName,
-					"server_id":   fmt.Sprint(info.ServerID),
-					"version":     info.Version,
-					"world_name":  info.WorldName,
+					//"server_id":   fmt.Sprint(info.ServerID),
+					"version":    info.Version,
+					"world_name": info.WorldName,
 				}
 
 				ready := 0
 				if info.IsReady {
 					ready++
 				}
+				fmt.Printf("%+v", info)
 				pt, err := client.NewPoint("server", tags, map[string]interface{}{
 					"sim_speed":    info.SimSpeed,
 					"players":      info.Players,
@@ -138,6 +139,7 @@ func main() {
 					if grid.IsPowered {
 						powered++
 					}
+					fmt.Printf("%+v", grids)
 					pt, err := client.NewPoint(
 						"grid",
 						map[string]string{
