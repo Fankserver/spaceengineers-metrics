@@ -15,8 +15,8 @@ import (
 )
 
 var (
-	host       = flag.String("host", "http://localhost:8080", "host url of the rcon server")
-	key        = flag.String("key", "", "rcon key")
+	host = flag.String("host", "http://localhost:8080", "host url of the rcon server")
+	//key        = flag.String("key", "", "rcon key")
 	influxhost = flag.String("influxhost", "http://localhost:8086", "influxdb host")
 	influxdb   = flag.String("influxdb", "spaceengineers", "influxdb database")
 	influxuser = flag.String("influxuser", "", "influx username")
@@ -27,7 +27,7 @@ func main() {
 	flag.Parse()
 	rand.Seed(time.Now().UnixNano())
 
-	s, err := New(*host, *key)
+	t, err := NewTrochMetrics(*host)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -56,7 +56,7 @@ func main() {
 					continue
 				}
 				running = true
-				info, err := s.ServerInfo()
+				info, err := t.ServerInfo()
 				if err != nil {
 					return err
 				}
@@ -70,27 +70,35 @@ func main() {
 					return err
 				}
 
-				tags := map[string]string{
-					"host":        *host,
-					"server_name": info.ServerName,
-					//"server_id":   fmt.Sprint(info.ServerID),
-					"version":    info.Version,
-					"world_name": info.WorldName,
-				}
-
 				ready := 0
 				if info.IsReady {
 					ready++
 				}
-				fmt.Printf("%+v", info)
-				pt, err := client.NewPoint("server", tags, map[string]interface{}{
-					"sim_speed":    info.SimSpeed,
-					"players":      info.Players,
-					"sim_cpu_load": info.SimulationCpuLoad,
-					"total_time":   info.TotalTime,
-					"used_pcu":     info.UsedPCU,
-					"ready":        ready,
-				}, time.Now())
+				pt, err := client.NewPoint(
+					"server",
+					map[string]string{
+						"host":        *host,
+						"server_name": info.ServerName,
+						"version":     info.Version,
+						"world_name":  info.WorldName,
+						"block_limit": info.BlockLimitEnabled,
+					},
+					map[string]interface{}{
+						"sim_speed":             info.SimSpeed,
+						"players":               info.Players,
+						"sim_cpu_load":          info.SimulationCpuLoad,
+						"total_time":            info.TotalTime,
+						"used_pcu":              info.UsedPCU,
+						"ready":                 ready,
+						"max_blocks_per_player": info.MaxBlocksPerPlayer,
+						"max_factions_count":    info.MaxFactionsCount,
+						"max_floating_objects":  info.MaxFloatingObjects,
+						"max_grid_size":         info.MaxGridSize,
+						"max_players":           info.MaxPlayers,
+						"block_limit":           info.BlockLimitEnabled,
+					},
+					time.Now(),
+				)
 				if err != nil {
 					return err
 				}
@@ -120,7 +128,7 @@ func main() {
 				}
 				running = true
 
-				grids, err := s.SessionGrids()
+				grids, err := t.SessionGrids()
 				if err != nil {
 					return err
 				}
@@ -136,27 +144,45 @@ func main() {
 
 				for _, grid := range grids {
 					powered := 0
+					concealed := 0
+					dampenersEnabled := 0
+					isStatic := 0
 					if grid.IsPowered {
 						powered++
 					}
-					fmt.Printf("%+v", grids)
+					if grid.Concealed {
+						concealed++
+					}
+					if grid.DampenersEnabled {
+						dampenersEnabled++
+					}
+					if grid.IsStatic {
+						isStatic++
+					}
 					pt, err := client.NewPoint(
 						"grid",
 						map[string]string{
 							"host":               *host,
 							"owner_steam_id":     fmt.Sprint(grid.OwnerSteamID),
 							"owner_display_name": grid.OwnerDisplayName,
+							"owner_faction_tag":  grid.OwnerFactionTag,
+							"owner_faction_name": grid.OwnerFactionName,
 							"display_name":       grid.DisplayName,
 							"entity_id":          fmt.Sprint(grid.EntityId),
 							"is_powered":         fmt.Sprint(powered),
 							"grid_size":          grid.GridSize,
+							"concealed":          fmt.Sprint(concealed),
+							"is_static":          fmt.Sprint(isStatic),
 						},
 						map[string]interface{}{
-							"blocks_count": grid.BlocksCount,
-							"is_powered":   powered,
-							"linear_speed": grid.LinearSpeed,
-							"mass":         grid.Mass,
-							"pcu":          grid.PCU,
+							"blocks_count":      grid.BlocksCount,
+							"is_powered":        powered,
+							"linear_speed":      grid.LinearSpeed,
+							"mass":              grid.Mass,
+							"pcu":               grid.PCU,
+							"concealed":         concealed,
+							"dampeners_enabled": dampenersEnabled,
+							"is_static":         isStatic,
 						},
 					)
 					if err != nil {
