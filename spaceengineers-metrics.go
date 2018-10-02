@@ -96,6 +96,7 @@ func main() {
 						"max_grid_size":         info.MaxGridSize,
 						"max_players":           info.MaxPlayers,
 						"block_limit":           info.BlockLimitEnabled,
+						"total_pcu":             info.TotalPCU,
 					},
 					time.Now(),
 				)

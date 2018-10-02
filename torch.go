@@ -81,6 +81,7 @@ type TorchMetricServer struct {
 	MaxGridSize        int
 	MaxBlocksPerPlayer int
 	BlockLimitEnabled  string
+	TotalPCU           int
 }
 
 func (t *TorchMetrics) ServerInfo() (*TorchMetricServer, error) {
