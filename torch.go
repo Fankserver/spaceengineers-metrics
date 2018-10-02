@@ -41,7 +41,7 @@ type TorchMetricsSessionGrid struct {
 	OwnerFactionName string
 	IsPowered        bool
 	PCU              int
-	Concealed        bool
+	IsConcealed      bool
 	DampenersEnabled bool
 	IsStatic         bool
 }

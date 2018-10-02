@@ -151,7 +151,7 @@ func main() {
 					if grid.IsPowered {
 						powered++
 					}
-					if grid.Concealed {
+					if grid.IsConcealed {
 						concealed++
 					}
 					if grid.DampenersEnabled {
@@ -170,10 +170,10 @@ func main() {
 							"owner_faction_name": grid.OwnerFactionName,
 							"display_name":       grid.DisplayName,
 							"entity_id":          fmt.Sprint(grid.EntityId),
-							"is_powered":         fmt.Sprint(powered),
+							"is_powered":         toStringBool(grid.IsPowered),
 							"grid_size":          grid.GridSize,
-							"concealed":          fmt.Sprint(concealed),
-							"is_static":          fmt.Sprint(isStatic),
+							"is_concealed":       toStringBool(grid.IsConcealed),
+							"is_static":          toStringBool(grid.IsStatic),
 						},
 						map[string]interface{}{
 							"blocks_count":      grid.BlocksCount,
@@ -206,5 +206,14 @@ func main() {
 	err = errWg.Wait()
 	if err != nil {
 		log.Fatal(err)
+	}
+}
+
+func toStringBool(val bool) string {
+	switch val {
+	case true:
+		return "yes"
+	default:
+		return "no"
 	}
 }
