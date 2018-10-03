@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"strings"
 	"time"
 
 	"flag"
@@ -368,11 +369,11 @@ func main() {
 					pt, err := client.NewPoint(
 						"faction",
 						map[string]string{
-							"host":                        *host,
-							"faction_id":                  fmt.Sprint(faction.FactionId),
-							"founder_id":                  fmt.Sprint(faction.FounderId),
-							"name":                        faction.Name,
-							"tag":                         faction.Tag,
+							"host":       *host,
+							"faction_id": fmt.Sprint(faction.FactionId),
+							"founder_id": fmt.Sprint(faction.FounderId),
+							"name":       faction.Name,
+							"tag":        strings.Replace(faction.Tag, "\\", "\\\\", -1),
 							"filter_accept_humans":        toStringBool(faction.AcceptHumans),
 							"filter_auto_accept_member":   toStringBool(faction.AutoAcceptMember),
 							"filter_auto_accept_peace":    toStringBool(faction.AutoAcceptPeace),
