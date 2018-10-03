@@ -385,6 +385,7 @@ func main() {
 							"auto_accept_member":   autoAcceptMember,
 							"auto_accept_peace":    autoAcceptPeace,
 							"enable_friendly_fire": enableFriendlyFire,
+							"member_count":         faction.MemberCount,
 						},
 					)
 					if err != nil {
