@@ -22,6 +22,45 @@ func NewTrochMetrics(host string) (*TorchMetrics, error) {
 	}, nil
 }
 
+type TorchMetricServer struct {
+	Version            string
+	ServerName         string
+	WorldName          string
+	IsReady            bool
+	SimSpeed           float64
+	SimulationCpuLoad  float64
+	TotalTime          int64
+	Players            int8
+	UsedPCU            int
+	MaxPlayers         int
+	MaxFactionsCount   int
+	MaxFloatingObjects int
+	MaxGridSize        int
+	MaxBlocksPerPlayer int
+	BlockLimitEnabled  string
+	TotalPCU           int
+}
+
+func (t *TorchMetrics) ServerInfo() (*TorchMetricServer, error) {
+	res, err := t.client.Get(fmt.Sprintf("%s/metrics/v1/server", t.host))
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.New(res.Status)
+	}
+
+	var server TorchMetricServer
+	err = json.NewDecoder(res.Body).Decode(&server)
+	if err != nil {
+		return nil, err
+	}
+
+	return &server, nil
+}
+
 type TorchMetricsSessionGrid struct {
 	DisplayName string
 	EntityId    int64
@@ -65,27 +104,18 @@ func (t *TorchMetrics) SessionGrids() ([]TorchMetricsSessionGrid, error) {
 	return grids, nil
 }
 
-type TorchMetricServer struct {
-	Version            string
-	ServerName         string
-	WorldName          string
-	IsReady            bool
-	SimSpeed           float64
-	SimulationCpuLoad  float64
-	TotalTime          int64
-	Players            int8
-	UsedPCU            int
-	MaxPlayers         int
-	MaxFactionsCount   int
-	MaxFloatingObjects int
-	MaxGridSize        int
-	MaxBlocksPerPlayer int
-	BlockLimitEnabled  string
-	TotalPCU           int
+type TorchMetricsSessionAsteroidOrPlanet struct {
+	DisplayName string
+	EntityId    int64
+	Position    struct {
+		X float64
+		Y float64
+		Z float64
+	}
 }
 
-func (t *TorchMetrics) ServerInfo() (*TorchMetricServer, error) {
-	res, err := t.client.Get(fmt.Sprintf("%s/metrics/v1/server", t.host))
+func (t *TorchMetrics) SessionAsteroids() ([]TorchMetricsSessionAsteroidOrPlanet, error) {
+	res, err := t.client.Get(fmt.Sprintf("%s/metrics/v1/session/asteroids", t.host))
 	if err != nil {
 		return nil, err
 	}
@@ -94,12 +124,95 @@ func (t *TorchMetrics) ServerInfo() (*TorchMetricServer, error) {
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.New(res.Status)
 	}
-
-	var server TorchMetricServer
-	err = json.NewDecoder(res.Body).Decode(&server)
+	var grids []TorchMetricsSessionAsteroidOrPlanet
+	err = json.NewDecoder(res.Body).Decode(&grids)
 	if err != nil {
 		return nil, err
 	}
 
-	return &server, nil
+	return grids, nil
+}
+
+func (t *TorchMetrics) SessionPlanets() ([]TorchMetricsSessionAsteroidOrPlanet, error) {
+	res, err := t.client.Get(fmt.Sprintf("%s/metrics/v1/session/planets", t.host))
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.New(res.Status)
+	}
+	var grids []TorchMetricsSessionAsteroidOrPlanet
+	err = json.NewDecoder(res.Body).Decode(&grids)
+	if err != nil {
+		return nil, err
+	}
+
+	return grids, nil
+}
+
+type TorchMetricsSessionFloatingObject struct {
+	DisplayName string
+	EntityId    int64
+	Kind        string
+	Mass        float64
+	Position    struct {
+		X float64
+		Y float64
+		Z float64
+	}
+	LinearSpeed      float64
+	DistanceToPlayer float64
+}
+
+func (t *TorchMetrics) SessionFloatingObjects() ([]TorchMetricsSessionFloatingObject, error) {
+	res, err := t.client.Get(fmt.Sprintf("%s/metrics/v1/session/floatingObjects", t.host))
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.New(res.Status)
+	}
+	var grids []TorchMetricsSessionFloatingObject
+	err = json.NewDecoder(res.Body).Decode(&grids)
+	if err != nil {
+		return nil, err
+	}
+
+	return grids, nil
+}
+
+type TorchMetricsSessionFaction struct {
+	AcceptHumans       bool
+	AutoAcceptMember   bool
+	AutoAcceptPeace    bool
+	EnableFriendlyFire bool
+	FactionId          int64
+	FounderId          int64
+	MemberCount        int
+	Name               string
+	Tag                string
+	NPCOnly            bool
+}
+
+func (t *TorchMetrics) SessionFactions() ([]TorchMetricsSessionFaction, error) {
+	res, err := t.client.Get(fmt.Sprintf("%s/metrics/v1/session/factions", t.host))
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.New(res.Status)
+	}
+	var grids []TorchMetricsSessionFaction
+	err = json.NewDecoder(res.Body).Decode(&grids)
+	if err != nil {
+		return nil, err
+	}
+
+	return grids, nil
 }

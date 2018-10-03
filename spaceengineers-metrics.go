@@ -202,7 +202,264 @@ func main() {
 
 		return nil
 	})
+	errWg.Go(func() error {
+		running := false
+		ticker := time.NewTicker(10 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-gCtx.Done():
+				return gCtx.Err()
+			case <-ticker.C:
+				if running {
+					continue
+				}
+				running = true
 
+				asteroids, err := t.SessionAsteroids()
+				if err != nil {
+					return err
+				}
+
+				// Create a new point batch
+				bp, err := client.NewBatchPoints(client.BatchPointsConfig{
+					Database:  *influxdb,
+					Precision: "s",
+				})
+				if err != nil {
+					return err
+				}
+
+				for _, asteroid := range asteroids {
+					pt, err := client.NewPoint(
+						"asteroid",
+						map[string]string{
+							"host":         *host,
+							"display_name": asteroid.DisplayName,
+							"entity_id":    fmt.Sprint(asteroid.EntityId),
+						},
+						map[string]interface{}{
+							"entity_id": asteroid.EntityId,
+						},
+					)
+					if err != nil {
+						return err
+					}
+					bp.AddPoint(pt)
+				}
+
+				// Write the batch
+				if err := c.Write(bp); err != nil {
+					return err
+				}
+				running = false
+			}
+		}
+
+		return nil
+	})
+	errWg.Go(func() error {
+		running := false
+		ticker := time.NewTicker(10 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-gCtx.Done():
+				return gCtx.Err()
+			case <-ticker.C:
+				if running {
+					continue
+				}
+				running = true
+
+				planets, err := t.SessionPlanets()
+				if err != nil {
+					return err
+				}
+
+				// Create a new point batch
+				bp, err := client.NewBatchPoints(client.BatchPointsConfig{
+					Database:  *influxdb,
+					Precision: "s",
+				})
+				if err != nil {
+					return err
+				}
+
+				for _, planet := range planets {
+					pt, err := client.NewPoint(
+						"planet",
+						map[string]string{
+							"host":         *host,
+							"display_name": planet.DisplayName,
+							"entity_id":    fmt.Sprint(planet.EntityId),
+						},
+						map[string]interface{}{
+							"entity_id": planet.EntityId,
+						},
+					)
+					if err != nil {
+						return err
+					}
+					bp.AddPoint(pt)
+				}
+
+				// Write the batch
+				if err := c.Write(bp); err != nil {
+					return err
+				}
+				running = false
+			}
+		}
+
+		return nil
+	})
+	errWg.Go(func() error {
+		running := false
+		ticker := time.NewTicker(10 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-gCtx.Done():
+				return gCtx.Err()
+			case <-ticker.C:
+				if running {
+					continue
+				}
+				running = true
+
+				factions, err := t.SessionFactions()
+				if err != nil {
+					return err
+				}
+
+				// Create a new point batch
+				bp, err := client.NewBatchPoints(client.BatchPointsConfig{
+					Database:  *influxdb,
+					Precision: "s",
+				})
+				if err != nil {
+					return err
+				}
+
+				for _, faction := range factions {
+					npconly := 0
+					acceptHumans := 0
+					autoAcceptMember := 0
+					autoAcceptPeace := 0
+					enableFriendlyFire := 0
+					if faction.NPCOnly {
+						npconly++
+					}
+					if faction.AcceptHumans {
+						acceptHumans++
+					}
+					if faction.AutoAcceptMember {
+						autoAcceptMember++
+					}
+					if faction.AutoAcceptPeace {
+						autoAcceptPeace++
+					}
+					if faction.EnableFriendlyFire {
+						enableFriendlyFire++
+					}
+					pt, err := client.NewPoint(
+						"faction",
+						map[string]string{
+							"host":                        *host,
+							"faction_id":                  fmt.Sprint(faction.FactionId),
+							"founder_id":                  fmt.Sprint(faction.FounderId),
+							"name":                        faction.Name,
+							"tag":                         faction.Tag,
+							"filter_accept_humans":        toStringBool(faction.AcceptHumans),
+							"filter_auto_accept_member":   toStringBool(faction.AutoAcceptMember),
+							"filter_auto_accept_peace":    toStringBool(faction.AutoAcceptPeace),
+							"filter_enable_friendly_fire": toStringBool(faction.EnableFriendlyFire),
+							"filter_npc_only":             toStringBool(faction.NPCOnly),
+						},
+						map[string]interface{}{
+							"npc_only":             npconly,
+							"auto_accept_humans":   acceptHumans,
+							"auto_accept_member":   autoAcceptMember,
+							"auto_accept_peace":    autoAcceptPeace,
+							"enable_friendly_fire": enableFriendlyFire,
+						},
+					)
+					if err != nil {
+						return err
+					}
+					bp.AddPoint(pt)
+				}
+
+				// Write the batch
+				if err := c.Write(bp); err != nil {
+					return err
+				}
+				running = false
+			}
+		}
+
+		return nil
+	})
+	errWg.Go(func() error {
+		running := false
+		ticker := time.NewTicker(10 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-gCtx.Done():
+				return gCtx.Err()
+			case <-ticker.C:
+				if running {
+					continue
+				}
+				running = true
+
+				floatingObjects, err := t.SessionFloatingObjects()
+				if err != nil {
+					return err
+				}
+
+				// Create a new point batch
+				bp, err := client.NewBatchPoints(client.BatchPointsConfig{
+					Database:  *influxdb,
+					Precision: "s",
+				})
+				if err != nil {
+					return err
+				}
+
+				for _, floatingObject := range floatingObjects {
+					pt, err := client.NewPoint(
+						"floating_object",
+						map[string]string{
+							"host":         *host,
+							"entity_id":    fmt.Sprint(floatingObject.EntityId),
+							"display_name": floatingObject.DisplayName,
+							"kind":         floatingObject.Kind,
+						},
+						map[string]interface{}{
+							"distance_to_player": floatingObject.DistanceToPlayer,
+							"linear_speed":       floatingObject.LinearSpeed,
+							"mass":               floatingObject.Mass,
+						},
+					)
+					if err != nil {
+						return err
+					}
+					bp.AddPoint(pt)
+				}
+
+				// Write the batch
+				if err := c.Write(bp); err != nil {
+					return err
+				}
+				running = false
+			}
+		}
+
+		return nil
+	})
 	err = errWg.Wait()
 	if err != nil {
 		log.Fatal(err)
