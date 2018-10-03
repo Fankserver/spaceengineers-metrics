@@ -239,7 +239,8 @@ func main() {
 							"entity_id":    fmt.Sprint(asteroid.EntityId),
 						},
 						map[string]interface{}{
-							"entity_id": asteroid.EntityId,
+							"display_name": asteroid.DisplayName,
+							"entity_id":    fmt.Sprint(asteroid.EntityId),
 						},
 					)
 					if err != nil {
@@ -295,7 +296,8 @@ func main() {
 							"entity_id":    fmt.Sprint(planet.EntityId),
 						},
 						map[string]interface{}{
-							"entity_id": planet.EntityId,
+							"display_name": planet.DisplayName,
+							"entity_id":    fmt.Sprint(planet.EntityId),
 						},
 					)
 					if err != nil {
