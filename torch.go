@@ -41,7 +41,7 @@ type TorchMetricServer struct {
 	TotalPCU           int
 }
 
-func (t *TorchMetrics) ServerInfo() (*TorchMetricServer, error) {
+func (t *TorchMetrics) Server() (*TorchMetricServer, error) {
 	res, err := t.client.Get(fmt.Sprintf("%s/metrics/v1/server", t.host))
 	if err != nil {
 		return nil, err
@@ -53,6 +53,38 @@ func (t *TorchMetrics) ServerInfo() (*TorchMetricServer, error) {
 	}
 
 	var server TorchMetricServer
+	err = json.NewDecoder(res.Body).Decode(&server)
+	if err != nil {
+		return nil, err
+	}
+
+	return &server, nil
+}
+
+type TorchMetricsProcess struct {
+	PrivateMemorySize64 int64
+	VirtualMemorySize64 int64
+	WorkingSet64 int64
+	NonpagedSystemMemorySize64 int64
+	PagedMemorySize64 int64
+	PagedSystemMemorySize64 int64
+	PeakPagedMemorySize64 int64
+	PeakVirtualMemorySize64 int64
+	PeakWorkingSet64 int64
+}
+
+func (t *TorchMetrics) Process() (*TorchMetricsProcess, error) {
+	res, err := t.client.Get(fmt.Sprintf("%s/metrics/v1/process", t.host))
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.New(res.Status)
+	}
+
+	var server TorchMetricsProcess
 	err = json.NewDecoder(res.Body).Decode(&server)
 	if err != nil {
 		return nil, err

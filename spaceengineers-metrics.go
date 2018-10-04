@@ -57,7 +57,7 @@ func main() {
 					continue
 				}
 				running = true
-				info, err := t.ServerInfo()
+				info, err := t.Server()
 				if err != nil {
 					return err
 				}
@@ -98,6 +98,66 @@ func main() {
 						"max_players":           info.MaxPlayers,
 						"block_limit":           info.BlockLimitEnabled,
 						"total_pcu":             info.TotalPCU,
+					},
+					time.Now(),
+				)
+				if err != nil {
+					return err
+				}
+				bp.AddPoint(pt)
+
+				// Write the batch
+				if err := c.Write(bp); err != nil {
+					return err
+				}
+				running = false
+			}
+		}
+
+		return nil
+	})
+	errWg.Go(func() error {
+		running := false
+		ticker := time.NewTicker(10 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-gCtx.Done():
+				return gCtx.Err()
+			case <-ticker.C:
+				if running {
+					continue
+				}
+				running = true
+				process, err := t.Process()
+				if err != nil {
+					return err
+				}
+
+				// Create a new point batch
+				bp, err := client.NewBatchPoints(client.BatchPointsConfig{
+					Database:  *influxdb,
+					Precision: "s",
+				})
+				if err != nil {
+					return err
+				}
+
+				pt, err := client.NewPoint(
+					"process",
+					map[string]string{
+						"host": *host,
+					},
+					map[string]interface{}{
+						"private_memory_size64":         process.PrivateMemorySize64,
+						"virtual_memory_size64":         process.VirtualMemorySize64,
+						"working_set64":                 process.WorkingSet64,
+						"nonpaged_system_memory_size64": process.NonpagedSystemMemorySize64,
+						"paged_memory_size64":           process.PagedMemorySize64,
+						"paged_system_memory_size64":    process.PagedSystemMemorySize64,
+						"peak_paged_memory_size64":      process.PeakPagedMemorySize64,
+						"peak_virtual_memory_size64":    process.PeakVirtualMemorySize64,
+						"peak_working_set64":            process.PeakWorkingSet64,
 					},
 					time.Now(),
 				)
@@ -369,11 +429,11 @@ func main() {
 					pt, err := client.NewPoint(
 						"faction",
 						map[string]string{
-							"host":       *host,
-							"faction_id": fmt.Sprint(faction.FactionId),
-							"founder_id": fmt.Sprint(faction.FounderId),
-							"name":       faction.Name,
-							"tag":        strings.Replace(faction.Tag, "\\", "\\\\", -1),
+							"host":                        *host,
+							"faction_id":                  fmt.Sprint(faction.FactionId),
+							"founder_id":                  fmt.Sprint(faction.FounderId),
+							"name":                        faction.Name,
+							"tag":                         strings.Replace(faction.Tag, "\\", "\\\\", -1),
 							"filter_accept_humans":        toStringBool(faction.AcceptHumans),
 							"filter_auto_accept_member":   toStringBool(faction.AutoAcceptMember),
 							"filter_auto_accept_peace":    toStringBool(faction.AutoAcceptPeace),
