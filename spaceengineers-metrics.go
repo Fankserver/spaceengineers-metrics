@@ -559,7 +559,6 @@ func main() {
 						"floating_object",
 						map[string]string{
 							"host":         *host,
-							"entity_id":    fmt.Sprint(floatingObject.EntityId),
 							"display_name": floatingObject.DisplayName,
 							"kind":         floatingObject.Kind,
 						},
