@@ -190,6 +190,67 @@ func main() {
 				}
 				running = true
 
+				events, err := t.Events()
+				if err != nil {
+					return err
+				}
+
+				// Create a new point batch
+				bp, err := client.NewBatchPoints(client.BatchPointsConfig{
+					Database:  *influxdb,
+					Precision: "s",
+				})
+				if err != nil {
+					return err
+				}
+
+				for _, event := range events {
+					occurred := event.Occurred
+					if occurred == nil && event.Occured != nil {
+						occurred = event.Occured
+					}
+
+					pt, err := client.NewPoint(
+						"events",
+						map[string]string{
+							"host": *host,
+						},
+						map[string]interface{}{
+							"text": event.Text,
+							"tags": strings.Join(event.Tags, ","),
+						},
+						*occurred,
+					)
+					if err != nil {
+						return err
+					}
+					bp.AddPoint(pt)
+				}
+
+				// Write the batch
+				if err := c.Write(bp); err != nil {
+					return err
+				}
+				running = false
+			}
+		}
+
+		return nil
+	})
+	errWg.Go(func() error {
+		running := false
+		ticker := time.NewTicker(10 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-gCtx.Done():
+				return gCtx.Err()
+			case <-ticker.C:
+				if running {
+					continue
+				}
+				running = true
+
 				grids, err := t.SessionGrids()
 				if err != nil {
 					return err

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/pkg/errors"
 )
@@ -62,15 +63,15 @@ func (t *TorchMetrics) Server() (*TorchMetricServer, error) {
 }
 
 type TorchMetricsProcess struct {
-	PrivateMemorySize64 int64
-	VirtualMemorySize64 int64
-	WorkingSet64 int64
+	PrivateMemorySize64        int64
+	VirtualMemorySize64        int64
+	WorkingSet64               int64
 	NonpagedSystemMemorySize64 int64
-	PagedMemorySize64 int64
-	PagedSystemMemorySize64 int64
-	PeakPagedMemorySize64 int64
-	PeakVirtualMemorySize64 int64
-	PeakWorkingSet64 int64
+	PagedMemorySize64          int64
+	PagedSystemMemorySize64    int64
+	PeakPagedMemorySize64      int64
+	PeakVirtualMemorySize64    int64
+	PeakWorkingSet64           int64
 }
 
 func (t *TorchMetrics) Process() (*TorchMetricsProcess, error) {
@@ -115,6 +116,32 @@ type TorchMetricsSessionGrid struct {
 	IsConcealed      bool
 	DampenersEnabled bool
 	IsStatic         bool
+}
+
+type TorchMetricsEvent struct {
+	Text     string
+	Tags     []string
+	Occured  *time.Time // backward compatible
+	Occurred *time.Time
+}
+
+func (t *TorchMetrics) Events() ([]TorchMetricsEvent, error) {
+	res, err := t.client.Get(fmt.Sprintf("%s/metrics/v1/events", t.host))
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.New(res.Status)
+	}
+	var grids []TorchMetricsEvent
+	err = json.NewDecoder(res.Body).Decode(&grids)
+	if err != nil {
+		return nil, err
+	}
+
+	return grids, nil
 }
 
 func (t *TorchMetrics) SessionGrids() ([]TorchMetricsSessionGrid, error) {
