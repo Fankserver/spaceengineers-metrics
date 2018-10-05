@@ -494,7 +494,7 @@ func main() {
 							"faction_id":                  fmt.Sprint(faction.FactionId),
 							"founder_id":                  fmt.Sprint(faction.FounderId),
 							"name":                        faction.Name,
-							"tag":                         strings.Replace(faction.Tag, "\\", "\\\\", -1),
+							"tag":                         strings.Replace(faction.Tag, "\\", "", -1),
 							"filter_accept_humans":        toStringBool(faction.AcceptHumans),
 							"filter_auto_accept_member":   toStringBool(faction.AutoAcceptMember),
 							"filter_auto_accept_peace":    toStringBool(faction.AutoAcceptPeace),
