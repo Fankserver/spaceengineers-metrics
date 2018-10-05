@@ -215,7 +215,7 @@ func main() {
 							"text": event.Text,
 							"tags": strings.Join(event.Tags, ","),
 						},
-						event.Occurred,
+						event.Occurred.Local(),
 					)
 					if err != nil {
 						return err
