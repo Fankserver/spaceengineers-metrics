@@ -205,21 +205,17 @@ func main() {
 				}
 
 				for _, event := range events {
-					occurred := event.Occurred
-					if occurred == nil && event.Occured != nil {
-						occurred = event.Occured
-					}
-
 					pt, err := client.NewPoint(
 						"events",
 						map[string]string{
 							"host": *host,
+							"type": event.Type,
 						},
 						map[string]interface{}{
 							"text": event.Text,
 							"tags": strings.Join(event.Tags, ","),
 						},
-						*occurred,
+						event.Occurred,
 					)
 					if err != nil {
 						return err

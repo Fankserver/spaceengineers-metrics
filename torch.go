@@ -94,6 +94,32 @@ func (t *TorchMetrics) Process() (*TorchMetricsProcess, error) {
 	return &server, nil
 }
 
+type TorchMetricsEvent struct {
+	Type     string
+	Text     string
+	Tags     []string
+	Occurred time.Time
+}
+
+func (t *TorchMetrics) Events() ([]TorchMetricsEvent, error) {
+	res, err := t.client.Get(fmt.Sprintf("%s/metrics/v1/events", t.host))
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.New(res.Status)
+	}
+	var grids []TorchMetricsEvent
+	err = json.NewDecoder(res.Body).Decode(&grids)
+	if err != nil {
+		return nil, err
+	}
+
+	return grids, nil
+}
+
 type TorchMetricsSessionGrid struct {
 	DisplayName string
 	EntityId    int64
@@ -116,32 +142,6 @@ type TorchMetricsSessionGrid struct {
 	IsConcealed      bool
 	DampenersEnabled bool
 	IsStatic         bool
-}
-
-type TorchMetricsEvent struct {
-	Text     string
-	Tags     []string
-	Occured  *time.Time // backward compatible
-	Occurred *time.Time
-}
-
-func (t *TorchMetrics) Events() ([]TorchMetricsEvent, error) {
-	res, err := t.client.Get(fmt.Sprintf("%s/metrics/v1/events", t.host))
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		return nil, errors.New(res.Status)
-	}
-	var grids []TorchMetricsEvent
-	err = json.NewDecoder(res.Body).Decode(&grids)
-	if err != nil {
-		return nil, err
-	}
-
-	return grids, nil
 }
 
 func (t *TorchMetrics) SessionGrids() ([]TorchMetricsSessionGrid, error) {
