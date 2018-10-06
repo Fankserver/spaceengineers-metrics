@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
-	"time"
 
 	"github.com/pkg/errors"
 )
@@ -72,6 +71,7 @@ type TorchMetricsProcess struct {
 	PeakPagedMemorySize64      int64
 	PeakVirtualMemorySize64    int64
 	PeakWorkingSet64           int64
+	GCLatencyMode              int8
 }
 
 func (t *TorchMetrics) Process() (*TorchMetricsProcess, error) {
@@ -95,10 +95,10 @@ func (t *TorchMetrics) Process() (*TorchMetricsProcess, error) {
 }
 
 type TorchMetricsEvent struct {
-	Type     string
-	Text     string
-	Tags     []string
-	Occurred time.Time
+	Type             string
+	Text             string
+	Tags             []string
+	SecondsInThePast int
 }
 
 func (t *TorchMetrics) Events() ([]TorchMetricsEvent, error) {
@@ -121,16 +121,11 @@ func (t *TorchMetrics) Events() ([]TorchMetricsEvent, error) {
 }
 
 type TorchMetricsSessionGrid struct {
-	DisplayName string
-	EntityId    int64
-	GridSize    string
-	BlocksCount int
-	Mass        float64
-	Position    struct {
-		X float64
-		Y float64
-		Z float64
-	}
+	DisplayName      string
+	EntityId         int64
+	GridSize         string
+	BlocksCount      int
+	Mass             float64
 	LinearSpeed      float64
 	DistanceToPlayer float64
 	OwnerSteamID     int64 `json:"OwnerSteamId"`
@@ -166,11 +161,6 @@ func (t *TorchMetrics) SessionGrids() ([]TorchMetricsSessionGrid, error) {
 type TorchMetricsSessionAsteroidOrPlanet struct {
 	DisplayName string
 	EntityId    int64
-	Position    struct {
-		X float64
-		Y float64
-		Z float64
-	}
 }
 
 func (t *TorchMetrics) SessionAsteroids() ([]TorchMetricsSessionAsteroidOrPlanet, error) {
@@ -212,17 +202,13 @@ func (t *TorchMetrics) SessionPlanets() ([]TorchMetricsSessionAsteroidOrPlanet, 
 }
 
 type TorchMetricsSessionFloatingObject struct {
-	DisplayName string
-	EntityId    int64
-	Kind        string
-	Mass        float64
-	Position    struct {
-		X float64
-		Y float64
-		Z float64
-	}
+	DisplayName      string
+	EntityId         int64
+	Kind             string
+	Mass             float64
 	LinearSpeed      float64
 	DistanceToPlayer float64
+	TypeDisplayName  string
 }
 
 func (t *TorchMetrics) SessionFloatingObjects() ([]TorchMetricsSessionFloatingObject, error) {

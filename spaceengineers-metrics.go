@@ -205,6 +205,10 @@ func main() {
 				}
 
 				for _, event := range events {
+					var occurred time.Time
+					if event.SecondsInThePast > 0 {
+						occurred = time.Now().Add(time.Second * time.Duration(event.SecondsInThePast) * -1)
+					}
 					pt, err := client.NewPoint(
 						"events",
 						map[string]string{
@@ -215,7 +219,7 @@ func main() {
 							"text": event.Text,
 							"tags": strings.Join(event.Tags, ","),
 						},
-						//event.Occurred.Local(),
+						occurred,
 					)
 					if err != nil {
 						return err
@@ -555,7 +559,7 @@ func main() {
 						"floating_object",
 						map[string]string{
 							"host":         *host,
-							"display_name": floatingObject.DisplayName,
+							"display_name": floatingObject.TypeDisplayName,
 							"kind":         floatingObject.Kind,
 						},
 						map[string]interface{}{
