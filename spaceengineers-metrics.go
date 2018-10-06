@@ -288,7 +288,7 @@ func main() {
 							"host":                *host,
 							"owner_steam_id":      fmt.Sprint(grid.OwnerSteamID),
 							"owner_display_name":  grid.OwnerDisplayName,
-							"owner_faction_tag":   grid.OwnerFactionTag,
+							"owner_faction_tag":   strings.Replace(grid.OwnerFactionTag, "\\", "", -1),
 							"owner_faction_name":  grid.OwnerFactionName,
 							"display_name":        grid.DisplayName,
 							"entity_id":           fmt.Sprint(grid.EntityId),
