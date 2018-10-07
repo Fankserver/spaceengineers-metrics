@@ -39,6 +39,7 @@ type TorchMetricServer struct {
 	MaxBlocksPerPlayer int
 	BlockLimitEnabled  string
 	TotalPCU           int
+	ModCount           int
 }
 
 func (t *TorchMetrics) Server() (*TorchMetricServer, error) {
@@ -72,6 +73,11 @@ type TorchMetricsProcess struct {
 	PeakVirtualMemorySize64    int64
 	PeakWorkingSet64           int64
 	GCLatencyMode              int8
+	GCTotalMemory              int64
+	GCMaxGeneration            int
+	GCCollectionCount0         int
+	GCCollectionCount1         int
+	GCCollectionCount2         int
 }
 
 func (t *TorchMetrics) Process() (*TorchMetricsProcess, error) {

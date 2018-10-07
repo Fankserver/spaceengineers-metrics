@@ -98,6 +98,7 @@ func main() {
 						"max_players":           info.MaxPlayers,
 						"block_limit":           info.BlockLimitEnabled,
 						"total_pcu":             info.TotalPCU,
+						"mod_count":             info.ModCount,
 					},
 					time.Now(),
 				)
@@ -158,6 +159,12 @@ func main() {
 						"peak_paged_memory_size64":      process.PeakPagedMemorySize64,
 						"peak_virtual_memory_size64":    process.PeakVirtualMemorySize64,
 						"peak_working_set64":            process.PeakWorkingSet64,
+						"gc_latency_mode":               process.GCLatencyMode,
+						"gc_total_memory":               process.GCTotalMemory,
+						"gc_max_generation":             process.GCMaxGeneration,
+						"gc_collection_count0":          process.GCCollectionCount0,
+						"gc_collection_count1":          process.GCCollectionCount1,
+						"gc_collection_count2":          process.GCCollectionCount2,
 					},
 					time.Now(),
 				)
