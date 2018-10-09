@@ -87,7 +87,7 @@ type TorchMetricsLoad struct {
 	ServerSimulationRatio  float64
 	ServerThreadLoad       float64
 	ServerThreadLoadSmooth float64
-	MillisecondsInThePast  int64
+	MillisecondsInThePast  float64
 }
 
 func (t *TorchMetrics) Load() ([]TorchMetricsLoad, error) {
@@ -133,7 +133,7 @@ type TorchMetricsEvent struct {
 	Type             string
 	Text             string
 	Tags             []string
-	SecondsInThePast int
+	SecondsInThePast float64
 }
 
 func (t *TorchMetrics) Events() ([]TorchMetricsEvent, error) {
