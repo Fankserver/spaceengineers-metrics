@@ -100,13 +100,13 @@ func (t *TorchMetrics) Load() ([]TorchMetricsLoad, error) {
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.New(res.Status)
 	}
-	var grids []TorchMetricsEvent
-	err = json.NewDecoder(res.Body).Decode(&grids)
+	var loads []TorchMetricsLoad
+	err = json.NewDecoder(res.Body).Decode(&loads)
 	if err != nil {
 		return nil, err
 	}
 
-	return grids, nil
+	return loads, nil
 }
 
 func (t *TorchMetrics) Process() (*TorchMetricsProcess, error) {
@@ -146,13 +146,13 @@ func (t *TorchMetrics) Events() ([]TorchMetricsEvent, error) {
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.New(res.Status)
 	}
-	var grids []TorchMetricsEvent
-	err = json.NewDecoder(res.Body).Decode(&grids)
+	var events []TorchMetricsEvent
+	err = json.NewDecoder(res.Body).Decode(&events)
 	if err != nil {
 		return nil, err
 	}
 
-	return grids, nil
+	return events, nil
 }
 
 type TorchMetricsSessionGrid struct {
