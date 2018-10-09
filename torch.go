@@ -15,7 +15,7 @@ type TorchMetrics struct {
 	host       string
 }
 
-func NewTrochMetrics(host string) (*TorchMetrics, error) {
+func NewTorchMetrics(host string) (*TorchMetrics, error) {
 	return &TorchMetrics{
 		client: &http.Client{},
 		host:   host,
@@ -40,6 +40,7 @@ type TorchMetricServer struct {
 	BlockLimitEnabled  string
 	TotalPCU           int
 	ModCount           int
+	SaveDuration       int64
 }
 
 func (t *TorchMetrics) Server() (*TorchMetricServer, error) {
@@ -78,6 +79,34 @@ type TorchMetricsProcess struct {
 	GCCollectionCount0         int
 	GCCollectionCount1         int
 	GCCollectionCount2         int
+}
+
+type TorchMetricsLoad struct {
+	ServerCPULoad          float64
+	ServerCPULoadSmooth    float64
+	ServerSimulationRatio  float64
+	ServerThreadLoad       float64
+	ServerThreadLoadSmooth float64
+	MillisecondsInThePast  int64
+}
+
+func (t *TorchMetrics) Load() ([]TorchMetricsLoad, error) {
+	res, err := t.client.Get(fmt.Sprintf("%s/metrics/v1/load", t.host))
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.New(res.Status)
+	}
+	var grids []TorchMetricsEvent
+	err = json.NewDecoder(res.Body).Decode(&grids)
+	if err != nil {
+		return nil, err
+	}
+
+	return grids, nil
 }
 
 func (t *TorchMetrics) Process() (*TorchMetricsProcess, error) {

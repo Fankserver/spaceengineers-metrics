@@ -28,7 +28,7 @@ func main() {
 	flag.Parse()
 	rand.Seed(time.Now().UnixNano())
 
-	t, err := NewTrochMetrics(*host)
+	t, err := NewTorchMetrics(*host)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -99,6 +99,7 @@ func main() {
 						"block_limit":           info.BlockLimitEnabled,
 						"total_pcu":             info.TotalPCU,
 						"mod_count":             info.ModCount,
+						"save_duration":         info.SaveDuration,
 					},
 					time.Now(),
 				)
@@ -106,6 +107,69 @@ func main() {
 					return err
 				}
 				bp.AddPoint(pt)
+
+				// Write the batch
+				if err := c.Write(bp); err != nil {
+					return err
+				}
+				running = false
+			}
+		}
+
+		return nil
+	})
+	errWg.Go(func() error {
+		running := false
+		ticker := time.NewTicker(10 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-gCtx.Done():
+				return gCtx.Err()
+			case <-ticker.C:
+				if running {
+					continue
+				}
+				running = true
+
+				loads, err := t.Load()
+				if err != nil {
+					return err
+				}
+
+				// Create a new point batch
+				bp, err := client.NewBatchPoints(client.BatchPointsConfig{
+					Database:  *influxdb,
+					Precision: "s",
+				})
+				if err != nil {
+					return err
+				}
+
+				for _, load := range loads {
+					var occurred time.Time
+					if load.MillisecondsInThePast > 0 {
+						occurred = time.Now().Add(time.Millisecond * time.Duration(load.MillisecondsInThePast) * -1)
+					}
+					pt, err := client.NewPoint(
+						"load",
+						map[string]string{
+							"host": *host,
+						},
+						map[string]interface{}{
+							"server_cpu_load":           load.ServerCPULoad,
+							"server_cpu_load_smooth":    load.ServerCPULoadSmooth,
+							"server_simulation_ratio":   load.ServerSimulationRatio,
+							"server_thread_load":        load.ServerThreadLoad,
+							"server_thread_load_smooth": load.ServerThreadLoadSmooth,
+						},
+						occurred,
+					)
+					if err != nil {
+						return err
+					}
+					bp.AddPoint(pt)
+				}
 
 				// Write the batch
 				if err := c.Write(bp); err != nil {
