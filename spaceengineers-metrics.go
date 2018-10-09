@@ -429,7 +429,6 @@ func main() {
 						map[string]string{
 							"host":         *host,
 							"display_name": asteroid.DisplayName,
-							"entity_id":    fmt.Sprint(asteroid.EntityId),
 						},
 						map[string]interface{}{
 							"dummy": 1,
@@ -485,7 +484,6 @@ func main() {
 						map[string]string{
 							"host":         *host,
 							"display_name": planet.DisplayName,
-							"entity_id":    fmt.Sprint(planet.EntityId),
 						},
 						map[string]interface{}{
 							"dummy": 1,
