@@ -156,22 +156,26 @@ func (t *TorchMetrics) Events() ([]TorchMetricsEvent, error) {
 }
 
 type TorchMetricsSessionGrid struct {
-	DisplayName      string
-	EntityId         int64
-	GridSize         string
-	BlocksCount      int
-	Mass             float64
-	LinearSpeed      float64
-	DistanceToPlayer float64
-	OwnerSteamID     int64 `json:"OwnerSteamId"`
-	OwnerDisplayName string
-	OwnerFactionTag  string
-	OwnerFactionName string
-	IsPowered        bool
-	PCU              int
-	IsConcealed      bool
-	DampenersEnabled bool
-	IsStatic         bool
+	DisplayName                       string
+	EntityId                          int64
+	GridSize                          string
+	BlocksCount                       int
+	Mass                              float64
+	LinearSpeed                       float64
+	DistanceToPlayer                  float64
+	OwnerSteamID                      int64 `json:"OwnerSteamId"`
+	OwnerDisplayName                  string
+	OwnerFactionTag                   string
+	OwnerFactionName                  string
+	IsPowered                         bool
+	PCU                               int
+	IsConcealed                       bool
+	DampenersEnabled                  bool
+	IsStatic                          bool
+	ConveyorSystemInventoryBlockCount int
+	ConveyorSystemEndpointBlockCount  int
+	ConveyorSystemLineCount           int
+	ConveyorSystemConnectorCount      int
 }
 
 func (t *TorchMetrics) SessionGrids() ([]TorchMetricsSessionGrid, error) {
