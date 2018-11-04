@@ -348,7 +348,9 @@ func main() {
 							"type":     event.Type,
 							"steam_id": fmt.Sprint(event.SteamID),
 						},
-						map[string]interface{}{},
+						map[string]interface{}{
+							"value": 1,
+						},
 						occurred,
 					)
 					if err != nil {
