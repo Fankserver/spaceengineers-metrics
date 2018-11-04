@@ -362,7 +362,6 @@ func main() {
 							"owner_faction_tag":   strings.Replace(grid.OwnerFactionTag, "\\", "", -1),
 							"owner_faction_name":  grid.OwnerFactionName,
 							"display_name":        grid.DisplayName,
-							"entity_id":           fmt.Sprint(grid.EntityId),
 							"filter_is_powered":   toStringBool(grid.IsPowered),
 							"grid_size":           grid.GridSize,
 							"filter_is_concealed": toStringBool(grid.IsConcealed),
