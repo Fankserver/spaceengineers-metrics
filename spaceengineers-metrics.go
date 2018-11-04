@@ -322,6 +322,65 @@ func main() {
 				}
 				running = true
 
+				events, err := t.PlayerEvents()
+				if err != nil {
+					return err
+				}
+
+				// Create a new point batch
+				bp, err := client.NewBatchPoints(client.BatchPointsConfig{
+					Database:  *influxdb,
+					Precision: "s",
+				})
+				if err != nil {
+					return err
+				}
+
+				for _, event := range events {
+					var occurred time.Time
+					if event.MillisecondsInThePast > 0 {
+						occurred = time.Now().Add(time.Millisecond * time.Duration(event.MillisecondsInThePast) * -1)
+					}
+					pt, err := client.NewPoint(
+						"players",
+						map[string]string{
+							"host":     *host,
+							"type":     event.Type,
+							"steam_id": fmt.Sprint(event.SteamID),
+						},
+						map[string]interface{}{},
+						occurred,
+					)
+					if err != nil {
+						return err
+					}
+					bp.AddPoint(pt)
+				}
+
+				// Write the batch
+				if err := c.Write(bp); err != nil {
+					return err
+				}
+				running = false
+			}
+		}
+
+		return nil
+	})
+	errWg.Go(func() error {
+		running := false
+		ticker := time.NewTicker(10 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-gCtx.Done():
+				return gCtx.Err()
+			case <-ticker.C:
+				if running {
+					continue
+				}
+				running = true
+
 				grids, err := t.SessionGrids()
 				if err != nil {
 					return err

@@ -155,6 +155,31 @@ func (t *TorchMetrics) Events() ([]TorchMetricsEvent, error) {
 	return events, nil
 }
 
+type TorchPlayerEvent struct {
+	Type                  string
+	SteamID               uint64 `json:"SteamId"`
+	MillisecondsInThePast float64
+}
+
+func (t *TorchMetrics) PlayerEvents() ([]TorchPlayerEvent, error) {
+	res, err := t.client.Get(fmt.Sprintf("%s/metrics/v1/players", t.host))
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.New(res.Status)
+	}
+	var events []TorchPlayerEvent
+	err = json.NewDecoder(res.Body).Decode(&events)
+	if err != nil {
+		return nil, err
+	}
+
+	return events, nil
+}
+
 type TorchMetricsSessionGrid struct {
 	DisplayName                       string
 	EntityId                          int64
