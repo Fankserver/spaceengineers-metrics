@@ -427,22 +427,20 @@ func main() {
 					return err
 				}
 
-				for _, asteroid := range asteroids {
-					pt, err := client.NewPoint(
-						"asteroid",
-						map[string]string{
-							"host":         *host,
-							"display_name": asteroid.DisplayName,
-						},
-						map[string]interface{}{
-							"dummy": 1,
-						},
-					)
-					if err != nil {
-						return err
-					}
-					bp.AddPoint(pt)
+				pt, err := client.NewPoint(
+					"voxel",
+					map[string]string{
+						"host": *host,
+						"kind": "asteroid",
+					},
+					map[string]interface{}{
+						"value": len(asteroids),
+					},
+				)
+				if err != nil {
+					return err
 				}
+				bp.AddPoint(pt)
 
 				// Write the batch
 				if err := c.Write(bp); err != nil {
@@ -482,22 +480,20 @@ func main() {
 					return err
 				}
 
-				for _, planet := range planets {
-					pt, err := client.NewPoint(
-						"planet",
-						map[string]string{
-							"host":         *host,
-							"display_name": planet.DisplayName,
-						},
-						map[string]interface{}{
-							"dummy": 1,
-						},
-					)
-					if err != nil {
-						return err
-					}
-					bp.AddPoint(pt)
+				pt, err := client.NewPoint(
+					"voxel",
+					map[string]string{
+						"host": *host,
+						"kind": "planet",
+					},
+					map[string]interface{}{
+						"value": len(planets),
+					},
+				)
+				if err != nil {
+					return err
 				}
+				bp.AddPoint(pt)
 
 				// Write the batch
 				if err := c.Write(bp); err != nil {
